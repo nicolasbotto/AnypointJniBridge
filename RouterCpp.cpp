@@ -6,7 +6,6 @@
 #include <errno.h>
 
 #define BUFFER_SIZE 4096
-#define SOCKET_NAME "/tmp/dotnetsocket"
 
 using namespace std;
 
@@ -50,10 +49,15 @@ JNIEXPORT void JNICALL Java_org_mule_api_jni_Bridge_init
    
 }
 
-JNIEXPORT jobject JNICALL Java_org_mule_api_jni_Bridge_invokeNetMethod
-(JNIEnv *env, jobject obj, jobject request)
+JNIEXPORT jstring JNICALL Java_org_mule_api_jni_Bridge_invokeNetMethod
+(JNIEnv *env, jobject obj, jstring socketName, jbyteArray request)
 {
     //pthread_mutex_lock(&lock);
+    const char * tmp = env->GetStringUTFChars((jstring)socketName, JNI_FALSE);
+    //copy the string
+    string cSocketName(tmp);
+    env->ReleaseStringUTFChars((jstring)socketName, tmp);
+
     string requestJSON = jniManager->toRequestJSON(request);
     
     if ((serverSocket = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
@@ -63,7 +67,7 @@ JNIEXPORT jobject JNICALL Java_org_mule_api_jni_Bridge_invokeNetMethod
     memset(&remote, 0, sizeof(struct sockaddr_un));
 
     remote.sun_family = AF_UNIX;
-    strcpy(remote.sun_path, SOCKET_NAME);
+    strcpy(remote.sun_path, cSocketName.c_str());
     int len = strlen(remote.sun_path) + sizeof(remote.sun_family);
 
     if (connect(serverSocket, (struct sockaddr *)&remote, len) == -1) {
@@ -94,6 +98,6 @@ JNIEXPORT jobject JNICALL Java_org_mule_api_jni_Bridge_invokeNetMethod
     close(serverSocket);
     
     //pthread_mutex_unlock(&lock);
-    return jniManager->toResponse(response);
+    return (jstring)jniManager->toResponse(response);
 }
 

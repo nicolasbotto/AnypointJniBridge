@@ -16,12 +16,12 @@ extern "C" {
 		(JNIEnv *, jobject, jobject);
 
 	/*
-	* Class:     org_mule_api_jni_Bridge
-	* Method:    invokeNetMethod
-	* Signature: (Lorg/mule/api/jni/Request;)Lorg/mule/api/jni/Response;
-	*/
-	JNIEXPORT jobject JNICALL Java_org_mule_api_jni_Bridge_invokeNetMethod
-		(JNIEnv *, jobject, jobject);
+        * Class:     org_mule_api_jni_Bridge
+        * Method:    invokeNetMethod
+        * Signature: (Ljava/lang/String;[B)Ljava/lang/String;
+        */
+       JNIEXPORT jstring JNICALL Java_org_mule_api_jni_Bridge_invokeNetMethod
+         (JNIEnv *, jobject, jstring, jbyteArray);
 
 #ifdef __cplusplus
 }
